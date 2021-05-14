@@ -22,7 +22,7 @@ public class MemberDAO {
 		String sql = "insert into member values(?, ?, ?, ?)";
 		try {
 			psmt = conn.prepareStatement(sql);
-			psmt.setInt(1, mem.getMemberId());
+			psmt.setString(1, mem.getMemberId());
 			psmt.setString(2, mem.getMemberName());
 			psmt.setInt(3, mem.getMemberAge());
 			psmt.setString(4, mem.getMemberPwd());
@@ -54,7 +54,7 @@ public class MemberDAO {
 			rs = psmt.executeQuery();
 			while (rs.next()) {
 				Member mem = new Member();
-				mem.setMemberId(rs.getInt("member_id"));
+				mem.setMemberId(rs.getString("member_id"));
 				mem.setMemberPwd(rs.getString("member_pwd"));
 				mem.setMemberName(rs.getString("member_name"));
 				mem.setMemberAge(rs.getInt("member_age"));
@@ -64,29 +64,56 @@ public class MemberDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if (psmt != null) {
-				try {
-					psmt.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+			close();
 		}
 		return list;
+	}
+
+	public Member checkInfo(String id, String pwd) {
+		// id pwd 조회해서 한건 가져와서 Member
+		Member mem = new Member();
+		String sql = "select * from member where MEMBER_ID = ? and MEMBER_PWD = ?";
+		try {
+			psmt = conn.prepareStatement(sql);
+			psmt.setString(1, id);
+			psmt.setString(2, pwd);
+			rs = psmt.executeQuery();
+			if(rs.next()) {
+				mem.setMemberId(rs.getString("member_id"));
+				mem.setMemberName(rs.getString("member_name"));
+				mem.setMemberAge(rs.getInt("member_age"));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close();
+		}
+		return mem;
+	}
+
+	public void close() {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		if (psmt != null) {
+			try {
+				psmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (conn != null) {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
