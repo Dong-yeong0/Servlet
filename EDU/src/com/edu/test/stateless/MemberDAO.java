@@ -7,6 +7,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 public class MemberDAO {
 
 	Connection conn;
@@ -14,8 +18,16 @@ public class MemberDAO {
 	ResultSet rs;
 
 	public MemberDAO() {
-		DataSource ds = DataSource.getInstance(); // DB 연결
-		conn = ds.getConnection();
+//		DataSource ds = DataSource.getInstance(); // DB 연결
+//		conn = ds.getConnection();
+		//Connection Poll 을 활용해서 Connection 객체 사용
+		try {
+			InitialContext ic = new InitialContext(); // 서버의 리소스를 관리하는 객체
+			javax.sql.DataSource ds = (DataSource) ic.lookup("java:comp/env/jdbc/myoracle");
+			conn = ds.getConnection();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void insertMember(Member mem) {
@@ -92,6 +104,30 @@ public class MemberDAO {
 		return mem;
 	}
 
+	// 한건조회
+	public Member getMember(String id) {
+		// id 조회해서 한건 가져와서 Member
+		Member mem = new Member();
+		String sql = "select * from member where MEMBER_ID = ?";
+		try {
+			psmt = conn.prepareStatement(sql);
+			psmt.setString(1, id);
+			rs = psmt.executeQuery();
+			if(rs.next()) {
+				mem.setMemberId(rs.getString("member_id"));
+				mem.setMemberName(rs.getString("member_name"));
+				mem.setMemberAge(rs.getInt("member_age"));
+				mem.setMemberPwd(rs.getString("member_pwd"));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close();
+		}
+		return mem;
+	}
+	
 	public void close() {
 		if (rs != null) {
 			try {
