@@ -41,7 +41,7 @@ public class PutMemberServlet extends HttpServlet {
 
 		System.out.println("DB에 입력되었습니다.");
 		Member member = new Member();
-		member.setMemberId(Integer.parseInt(id));
+		member.setMemberId(id);
 		member.setMemberPwd(pwd);
 		member.setMemberName(name);
 		member.setMemberAge(Integer.parseInt(age));
